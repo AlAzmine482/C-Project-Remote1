@@ -1,0 +1,368 @@
+using System;
+using System.ComponentModel.Design;
+using System.Runtime.InteropServices;
+using System.Threading.Channels;
+
+
+namespace TvRemoteExample
+{
+ 
+    public class TVRemote
+
+    {
+        
+        public string RemoteID = "TM-1240A";
+        private unsupportedtv faketv;
+        private readonly Tvmodel1 _screen;
+        private readonly string[] supportedModels = {
+            "UN75TU7000", "UN70TU7000", "UN65TU7000",
+            "UN58TU7000", "UN55TU7000", "UN50TU7000",
+            "UN43TU7000"
+        };
+
+        public TVRemote(Tvmodel1 screen)
+        {
+            _screen = screen;
+           
+
+        }
+
+       
+        public void CheckSupportedModels() {
+            if (supportedModels.Contains(_screen.ModelName))
+            {
+                Console.WriteLine("TVModel is Supported");
+                Console.WriteLine($"TVModel: {_screen.ModelName}");
+                Console.WriteLine($"TVRemote: {RemoteID}");
+                Console.WriteLine("Welcome to the TV Remote! Ready to control your TV.");
+                DisplayMenu();
+            }
+            else {
+                Console.WriteLine("TVModel is not Supported");
+            }
+        
+        }
+    
+
+        public void PowerButton()
+        {
+            if (_screen.IsOn == true)
+            {
+                _screen.TurnOff();
+                Console.WriteLine("Tv Now off!");
+            }
+            else
+            {
+                _screen.TurnOn();
+                Console.WriteLine("Tv Now on!");
+            }
+
+        }
+        public void DisplayMenu() {
+            bool exit = false;
+            while (!exit) {
+                Console.WriteLine("\n--- TV Remote Menu ---");
+                Console.WriteLine("1) Turn On/Off TV");
+                Console.WriteLine("2) Change Channel");
+                Console.WriteLine("3) Display Smart Menu");
+                Console.WriteLine("4) Volume up or Volume Down");
+                Console.WriteLine("5) Mute");
+                Console.WriteLine("6) Change Channel");
+                Console.WriteLine("7) Settings");
+                Console.WriteLine("8) Help");
+                Console.WriteLine("9) Exit");
+                Console.Write("Choose an option: ");
+
+                string? input = Console.ReadLine();
+
+                    
+                switch (input)
+                {
+                    case "1":
+                        PowerButton();
+                        CheckSupportedModels();
+                        break;
+                    case "2":
+                        ChannelButton();
+                        break;
+                    case "3":
+                        SmartMenu();
+                        break;
+                    case "4":
+                        Volumebutton();
+                        break;
+                    case "5":
+                        Mute();
+                        break;
+                    case "6":
+                        ChangeChannel();
+                        break;
+                    case "7":
+                        Settings();
+                        break;
+                    case "8":
+                        Help();
+                        break;
+                    case "9":
+                        Console.WriteLine("Exiting the remote control.");
+                        //Environment.Exit(0);
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option, please choose again.");
+                        break;
+                }
+            }
+
+        }
+
+        private void ChannelButton()
+        {
+            Console.WriteLine("Press  up arrow to increase or press down arrow to decrease");
+            var keyInput = Console.ReadKey();
+            switch (keyInput.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    _screen.channelUp();
+                    Console.WriteLine("Volume up button pressed");
+                    break;
+                case ConsoleKey.DownArrow:
+                    _screen.channelDown();
+                    Console.WriteLine("Volume Down button pressed");
+                    break;
+
+                
+            }
+
+
+        }
+    
+        public void Volumebutton()
+        {
+            Console.WriteLine("Press  up arrow to increase or press down arrow to decrease");
+            var keyInput = Console.ReadKey(intercept: true);
+            switch (keyInput.Key) { 
+                case ConsoleKey.UpArrow:
+                    _screen.volumeUp();
+                    Console.WriteLine("Volume up button pressed");
+                    break;
+                case ConsoleKey.DownArrow:
+                    _screen.volumeDown();
+                    Console.WriteLine("Volume Down button pressed");
+                    break;
+            }
+
+        }
+     
+
+       
+
+        public void Mute()
+        {
+            _screen.mute();
+        }
+
+      
+
+        public void SmartMenu()
+        {
+            //Web browsing, Sports content, Music Streaming, Videos, Apps and games, settings, content categories, program search
+            Console.WriteLine("\n--- Smart Menu ---");
+            Console.WriteLine("1) Apps and Services");
+            Console.WriteLine("2) Return");
+            Console.WriteLine("3) Samsung Apps Store");
+            Console.WriteLine("4) Settings");
+            Console.WriteLine("5) Help and Support");
+            string? input = Console.ReadLine();
+            switch (input)
+            {
+                case "1":
+                    Console.WriteLine("1) Apps and Services Include: Amazon Prime Video, Netflix, Hulu, Disney+");
+                    break;
+                case "2":
+                    DisplayMenu();
+                    break;
+                case "3":
+                    Console.WriteLine("Samsung App Store");
+                    break;
+                case "4":
+                    Settings();
+                    break;
+                case "5":
+                    Help();
+                    break;
+                case "6":
+                    Console.WriteLine("Exiting the remote control.");
+                    Environment.Exit(0);
+                    break;
+                default:
+                    Console.WriteLine("Invalid option, please choose again.");
+                    break;
+            }
+        }
+
+      
+        public void ChangeChannel()
+        {
+            Console.WriteLine("Enter the channel number ");
+            string? input = Console.ReadLine();
+            if (int.TryParse(input, out int channel))
+            {
+
+                _screen.ChannelNumber(channel);
+            }
+            else {
+                Console.WriteLine("Invalid Input! Please enter Integers");
+            }
+        }
+
+        public void Settings()
+        {
+            //Picture Settings, Sound Settings, Channel Settings, Network Settings, System Information, General Settings, Advance Settings Smart Features?
+          
+            Console.WriteLine("\n--- Settings Menu ---");
+            Console.WriteLine("1) Picture Settings");
+            Console.WriteLine("2) Sound Settings");
+            Console.WriteLine("3) Samsung Apps Store");
+            Console.WriteLine("4) System Information");
+            Console.WriteLine("5) Return");
+            string? input = Console.ReadLine();
+            switch (input)
+            {
+                case "1":
+                    pictureSettings();
+                    break;
+                case "2":
+                    Volumebutton();
+                    break;
+                case "3":
+                    Console.WriteLine("Samsung App Store");
+                    break;
+                case "4":
+                    SystemInformation();
+                    break;
+                case "5":
+                    Console.WriteLine("Returning to Main Menu.");
+                    DisplayMenu();
+                    break;
+                default:
+                    Console.WriteLine("Invalid option, please choose again.");
+                    break;
+            }
+
+        }
+        public void Help()
+        {
+
+            Console.WriteLine("\n--- Help Menu ---");
+            Console.WriteLine("1) **Turn On/Off TV**: This option allows you to turn the TV on or off.");
+            Console.WriteLine("2) **Change Channel**: Enter a channel number to switch to a specific channel.");
+            Console.WriteLine("3) **Display Smart Menu**: Can access apps, streaming services, and settings specific to smart features.");
+            Console.WriteLine("4) **Volume Up or Volume Down**: Adjust the TV’s volume.");
+            Console.WriteLine("5) **Mute**: Instantly mute the sound of your TV.");
+            Console.WriteLine("6) **Change Channel**: Enter numbers to change Channel.");
+            Console.WriteLine("7) **Settings**: Access the TV’s settings menu .");
+            Console.WriteLine("8) **Help**: Explain the functions of each option.");
+            Console.WriteLine("9) **Exit**: Exit the TV Remote menu and return to the main program.");
+        }
+
+        public void pictureSettings()
+        {
+            Console.WriteLine("\n--- Picture Settings Menu ---");
+            Console.WriteLine("1) Brightness");
+            Console.WriteLine("2) Contrast");
+            Console.WriteLine("3) Sharpness");
+
+
+            string? input = Console.ReadLine();
+            switch (input)
+            {
+                case "1":
+                    brightnesschange();
+                    break;
+                case "2":
+                    contrastChange();
+                    break;
+                case "3":
+                    sharpness();
+                    break;
+                case "4":
+                    Console.WriteLine("Returning to Main Menu.");
+                    DisplayMenu();
+                    break;
+                default:
+                    Console.WriteLine("Invalid option, please choose again.");
+                    break;
+            }
+        }
+
+        
+
+        public void SystemInformation() 
+        {           
+            _screen.Model();
+            _screen.countryofOrgin();
+            _screen.Screensize();
+            _screen.UPCCODe();
+        }
+
+        public void brightnesschange() 
+        {
+            Console.WriteLine("Press  up arrow to increase or press down arrow to decrease");
+            var keyInput = Console.ReadKey(intercept: true);
+            switch (keyInput.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    _screen.BrightnessUp();
+                    
+                    break;
+                case ConsoleKey.DownArrow:
+                    _screen.BrightnessDown();
+                    
+                    break;
+            }
+
+        }
+
+        public void contrastChange()
+        {
+            Console.WriteLine("Press  up arrow to increase or press down arrow to decrease");
+            var keyInput = Console.ReadKey(intercept: true);
+            switch (keyInput.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    _screen.ContrastUp();
+                    Console.WriteLine("Up button pressed");
+                    break;
+                case ConsoleKey.DownArrow:
+                    _screen.ContrastDown();
+                   
+                    break;
+            }
+        }
+
+        public void sharpness()
+        {
+            Console.WriteLine("Press  up arrow to increase or press down arrow to decrease");
+            var keyInput = Console.ReadKey(intercept: true);
+            switch (keyInput.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    _screen.SharpnessUp();
+                    
+                    break;
+                case ConsoleKey.DownArrow:
+                    _screen.SharpnessDown();
+                  
+                    break;
+            }
+
+        }
+        
+      
+
+        
+       
+
+    }
+}
